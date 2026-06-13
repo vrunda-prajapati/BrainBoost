@@ -108,6 +108,12 @@ export default function MemoryGame() {
     }
   }, [deck]);
 
+  useEffect(() => {
+    if (gameOver) {
+      saveScore();
+    }
+  }, [gameOver]);
+
   const restart = useCallback((newLevel = level) => {
     clearInterval(timerRef.current);
     setLevel(newLevel);

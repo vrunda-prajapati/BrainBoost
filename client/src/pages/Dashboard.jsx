@@ -66,38 +66,37 @@ const AVATARS = ["🐉", "🦊", "🦁", "🐺", "🦅", "🐯"];
 
 export default function Dashboard() {
   const navigate = useNavigate();
-  const [user, setUser] = useState({ name: "Alex", level: 8, score: 74500, xp: 3200, nextXp: 5000 });
+  const [user, setUser] = useState({
+    name: "",
+    current_level: 1,
+    total_score: 0,
+    xp: 0,
+    nextXp: 5000
+  });
   const [avatarIdx] = useState(2);
 
   useEffect(() => {
-  const fetchProfile = async () => {
-    try {
-      const token = localStorage.getItem("token");
+    const fetchProfile = async () => {
+      try {
+        const token = localStorage.getItem("token");
 
-      const res = await axios.get(
-        "http://localhost:3001/api/user/profile",
-        {
-          headers: {
-            Authorization: token,
-          },
-        }
-      );
+        const res = await axios.get(
+          "http://localhost:3001/api/user/profile",
+          {
+            headers: {
+              Authorization: token
+            }
+          }
+        );
 
-      setUser({
-        name: res.data.name,
-        level: res.data.current_level,
-        score: res.data.total_score,
-        xp: 3200,
-        nextXp: 5000,
-      });
+        setUser(res.data);
+      } catch (error) {
+        console.log(error);
+      }
+    };
 
-    } catch (error) {
-      console.log(error);
-    }
-  };
-
-  fetchProfile();
-}, []);
+    fetchProfile();
+  }, []);
 
   const handleLogout = () => {
     localStorage.removeItem("token");
@@ -105,7 +104,12 @@ export default function Dashboard() {
     navigate("/");
   };
 
-  const xpPercent = Math.round((user.xp / user.nextXp) * 100);
+  const nextXp = user.current_level * 1000;
+
+  const xpPercent = Math.min(
+    100,
+    Math.round((user.xp / nextXp) * 100)
+  );
 
   return (
     <div className="min-h-screen bg-[#0a0a0f] font-sans">
@@ -132,7 +136,7 @@ export default function Dashboard() {
 
           <div className="flex items-center gap-3">
             <div className="hidden sm:flex items-center gap-2 px-3 py-1.5 rounded-full bg-violet-500/10 border border-violet-500/20">
-              <span className="text-violet-400 text-xs font-bold">LVL {user.level}</span>
+              <span className="text-violet-400 text-xs font-bold">LVL {user.current_level}</span>
             </div>
             <div className="w-8 h-8 rounded-full bg-gradient-to-br from-violet-500 to-fuchsia-500 flex items-center justify-center text-sm cursor-pointer"
               title={user.name}>
@@ -163,7 +167,7 @@ export default function Dashboard() {
                 {AVATARS[avatarIdx]}
               </div>
               <span className="absolute -bottom-1.5 -right-1.5 flex items-center justify-center w-7 h-7 rounded-lg bg-violet-600 border-2 border-[#0a0a0f] text-white text-xs font-black shadow">
-                {user.level}
+                {user.current_level}
               </span>
             </div>
 
@@ -175,8 +179,8 @@ export default function Dashboard() {
               {/* XP bar */}
               <div className="mt-4 max-w-xs">
                 <div className="flex justify-between text-xs text-gray-400 mb-1.5">
-                  <span>{user.xp.toLocaleString()} XP</span>
-                  <span>{user.nextXp.toLocaleString()} XP to Level {user.level + 1}</span>
+                  <span>{(user.xp || 0).toLocaleString()} XP</span>                  
+                 <span>{nextXp.toLocaleString()} XP to Level {user.current_level + 1}</span>
                 </div>
                 <div className="h-2 bg-white/10 rounded-full overflow-hidden">
                   <div
@@ -190,7 +194,7 @@ export default function Dashboard() {
             {/* Stat pills */}
             <div className="flex sm:flex-col gap-3 shrink-0">
               <div className="rounded-xl bg-white/[0.05] border border-white/10 px-5 py-3 text-center min-w-[100px]">
-                <p className="text-2xl font-black text-white">{user.score.toLocaleString()}</p>
+                <p className="text-2xl font-black text-white">{user.total_score?.toLocaleString()}</p>
                 <p className="text-xs text-gray-500 uppercase tracking-widest mt-0.5">Total Score</p>
               </div>
               <div className="rounded-xl bg-white/[0.05] border border-white/10 px-5 py-3 text-center min-w-[100px]">
@@ -273,11 +277,10 @@ export default function Dashboard() {
             <div className="space-y-3">
               {ACHIEVEMENTS.map((a) => (
                 <div key={a.title}
-                  className={`flex items-center gap-4 rounded-xl px-4 py-3 border transition-colors ${
-                    a.unlocked
+                  className={`flex items-center gap-4 rounded-xl px-4 py-3 border transition-colors ${a.unlocked
                       ? "bg-violet-500/10 border-violet-500/25 hover:bg-violet-500/15"
                       : "bg-white/[0.02] border-white/[0.05] opacity-50"
-                  }`}>
+                    }`}>
                   <span className="text-2xl">{a.icon}</span>
                   <div className="flex-1 min-w-0">
                     <p className="text-white font-semibold text-sm">{a.title}</p>
@@ -310,24 +313,21 @@ export default function Dashboard() {
             <div className="space-y-2">
               {LEADERBOARD.map((p) => (
                 <div key={p.rank}
-                  className={`flex items-center gap-4 rounded-xl px-4 py-3 border transition-colors ${
-                    p.isUser
+                  className={`flex items-center gap-4 rounded-xl px-4 py-3 border transition-colors ${p.isUser
                       ? "bg-violet-500/15 border-violet-500/30"
                       : "bg-white/[0.02] border-white/[0.05] hover:bg-white/[0.05]"
-                  }`}>
+                    }`}>
                   {/* Rank */}
-                  <span className={`w-6 text-center font-black text-sm ${
-                    p.rank === 1 ? "text-yellow-400" :
-                    p.rank === 2 ? "text-gray-300" :
-                    p.rank === 3 ? "text-amber-600" : "text-gray-500"
-                  }`}>
+                  <span className={`w-6 text-center font-black text-sm ${p.rank === 1 ? "text-yellow-400" :
+                      p.rank === 2 ? "text-gray-300" :
+                        p.rank === 3 ? "text-amber-600" : "text-gray-500"
+                    }`}>
                     {p.rank === 1 ? "🥇" : p.rank === 2 ? "🥈" : p.rank === 3 ? "🥉" : `#${p.rank}`}
                   </span>
 
                   {/* Avatar */}
-                  <div className={`w-8 h-8 rounded-full flex items-center justify-center text-xs font-bold text-white shrink-0 ${
-                    p.isUser ? "bg-gradient-to-br from-violet-500 to-fuchsia-500" : "bg-white/10"
-                  }`}>
+                  <div className={`w-8 h-8 rounded-full flex items-center justify-center text-xs font-bold text-white shrink-0 ${p.isUser ? "bg-gradient-to-br from-violet-500 to-fuchsia-500" : "bg-white/10"
+                    }`}>
                     {p.avatar}
                   </div>
 

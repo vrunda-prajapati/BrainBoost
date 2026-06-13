@@ -5,6 +5,9 @@ const verifyToken = require("../middleware/authMiddleware");
 const db = require("../config/db");
 
 router.post("/save-score", verifyToken, (req, res) => {
+  console.log("USER: ", req.user);
+  console.log("BODY: ", req.body);
+
   const userId = req.user.id;
 
   const {
@@ -33,25 +36,35 @@ router.post("/save-score", verifyToken, (req, res) => {
     ],
     (err, result) => {
       if (err) {
+        console.log("DATABASE ERROR", err);
         return res.status(500).json(err);
       }
 
       // Update user's total score
+      const xpEarned = Math.floor(score / 10);
+
       const updateSql = `
         UPDATE users
-        SET total_score = total_score + ?
+        SET
+          total_score = total_score + ?,
+          xp = xp + ?
         WHERE id = ?
       `;
 
-      db.query(updateSql, [score, userId], (updateErr) => {
-        if (updateErr) {
-          return res.status(500).json(updateErr);
-        }
+      db.query(
+        updateSql,
+        [score, xpEarned, userId],
+        (updateErr) => {
+          if (updateErr) {
+            return res.status(500).json(updateErr);
+          }
 
-        res.json({
-          message: "Score Saved Successfully and User Score Updated",
-        });
-      });
+          res.json({
+            message: "Score Saved Successfully",
+            xpEarned
+          });
+        }
+      );
     }
   );
 });

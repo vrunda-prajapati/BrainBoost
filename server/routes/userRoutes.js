@@ -8,7 +8,7 @@ router.get("/profile", verifyToken, (req, res) => {
   const userId = req.user.id;
 
   const sql =
-    "SELECT id,name,email,current_level,total_score FROM users WHERE id=?";
+    "SELECT id,name,email,current_level,total_score,xp FROM users WHERE id=?";
 
   db.query(sql, [userId], (err, results) => {
     if (err) {
