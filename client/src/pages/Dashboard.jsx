@@ -54,17 +54,17 @@ const ACHIEVEMENTS = [
   { icon: "🏅", title: "Top 10", desc: "Reach global top 10", unlocked: false },
 ];
 
-const LEADERBOARD = [
-  { rank: 1, name: "NeuralNinja", score: 98420, level: 42, avatar: "N" },
-  { rank: 2, name: "MindMaster", score: 91050, level: 38, avatar: "M" },
-  { rank: 3, name: "CortexKing", score: 87300, level: 35, avatar: "C" },
-  { rank: 4, name: "BrainWave99", score: 82100, level: 31, avatar: "B" },
-  { rank: 5, name: "You", score: 74500, level: 8, avatar: "Y", isUser: true },
-];
+
 
 const AVATARS = ["🐉", "🦊", "🦁", "🐺", "🦅", "🐯"];
 
 export default function Dashboard() {
+  const [leaderboard, setLeaderboard] = useState([]);
+  const [stats, setStats] = useState({
+    gamesPlayed: 0,
+    highestScore: 0,
+    avgScore: 0
+  });
   const navigate = useNavigate();
   const [user, setUser] = useState({
     name: "",
@@ -94,6 +94,32 @@ export default function Dashboard() {
         console.log(error);
       }
     };
+
+    const token = localStorage.getItem("token");
+
+    axios.get(
+      "http://localhost:3001/api/user/stats",
+      {
+        headers: {
+          Authorization: token
+        }
+      }
+    )
+      .then((res) => {
+        setStats(res.data);
+      })
+      .catch((err) => {
+        console.log(err);
+      });
+
+    axios
+      .get("http://localhost:3001/api/user/leaderboard")
+      .then((res) => {
+        setLeaderboard(res.data);
+      })
+      .catch((err) => {
+        console.log(err);
+      });
 
     fetchProfile();
   }, []);
@@ -179,8 +205,8 @@ export default function Dashboard() {
               {/* XP bar */}
               <div className="mt-4 max-w-xs">
                 <div className="flex justify-between text-xs text-gray-400 mb-1.5">
-                  <span>{(user.xp || 0).toLocaleString()} XP</span>                  
-                 <span>{nextXp.toLocaleString()} XP to Level {user.current_level + 1}</span>
+                  <span>{(user.xp || 0).toLocaleString()} XP</span>
+                  <span>{nextXp.toLocaleString()} XP to Level {user.current_level + 1}</span>
                 </div>
                 <div className="h-2 bg-white/10 rounded-full overflow-hidden">
                   <div
@@ -208,10 +234,30 @@ export default function Dashboard() {
         {/* ── Quick Stats Row ── */}
         <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
           {[
-            { label: "Games Played", value: "247", icon: "🎮", color: "text-violet-400" },
-            { label: "Best Streak", value: "14 days", icon: "🔥", color: "text-orange-400" },
-            { label: "Avg Score", value: "6,840", icon: "📊", color: "text-cyan-400" },
-            { label: "Badges Earned", value: "12 / 30", icon: "🏆", color: "text-yellow-400" },
+            {
+              label: "Games Played",
+              value: stats.gamesPlayed,
+              icon: "🎮",
+              color: "text-violet-400"
+            },
+            {
+              label: "Highest Score",
+              value: stats.highestScore,
+              icon: "🔥",
+              color: "text-orange-400"
+            },
+            {
+              label: "Avg Score",
+              value: stats.avgScore,
+              icon: "📊",
+              color: "text-cyan-400"
+            },
+            {
+              label: "Level",
+              value: user.current_level,
+              icon: "🏆",
+              color: "text-yellow-400"
+            }
           ].map((stat) => (
             <div key={stat.label}
               className="rounded-xl bg-white/[0.04] border border-white/[0.08] p-5 hover:bg-white/[0.07] transition-colors">
@@ -278,8 +324,8 @@ export default function Dashboard() {
               {ACHIEVEMENTS.map((a) => (
                 <div key={a.title}
                   className={`flex items-center gap-4 rounded-xl px-4 py-3 border transition-colors ${a.unlocked
-                      ? "bg-violet-500/10 border-violet-500/25 hover:bg-violet-500/15"
-                      : "bg-white/[0.02] border-white/[0.05] opacity-50"
+                    ? "bg-violet-500/10 border-violet-500/25 hover:bg-violet-500/15"
+                    : "bg-white/[0.02] border-white/[0.05] opacity-50"
                     }`}>
                   <span className="text-2xl">{a.icon}</span>
                   <div className="flex-1 min-w-0">
@@ -311,35 +357,38 @@ export default function Dashboard() {
               <span className="text-xs text-gray-500 hover:text-violet-400 cursor-pointer transition-colors">View All →</span>
             </div>
             <div className="space-y-2">
-              {LEADERBOARD.map((p) => (
-                <div key={p.rank}
+              {leaderboard.map((p, index) => (
+                <div key={index + 1}
                   className={`flex items-center gap-4 rounded-xl px-4 py-3 border transition-colors ${p.isUser
-                      ? "bg-violet-500/15 border-violet-500/30"
-                      : "bg-white/[0.02] border-white/[0.05] hover:bg-white/[0.05]"
+                    ? "bg-violet-500/15 border-violet-500/30"
+                    : "bg-white/[0.02] border-white/[0.05] hover:bg-white/[0.05]"
                     }`}>
                   {/* Rank */}
-                  <span className={`w-6 text-center font-black text-sm ${p.rank === 1 ? "text-yellow-400" :
-                      p.rank === 2 ? "text-gray-300" :
-                        p.rank === 3 ? "text-amber-600" : "text-gray-500"
+                  <span className={`w-6 text-center font-black text-sm ${index === 0 ? "text-yellow-400" :
+                    index === 1 ? "text-gray-300" :
+                      index === 2 ? "text-amber-600" :
+                        "text-gray-500"
                     }`}>
-                    {p.rank === 1 ? "🥇" : p.rank === 2 ? "🥈" : p.rank === 3 ? "🥉" : `#${p.rank}`}
+                    {index === 0 ? "🥇" :
+                      index === 1 ? "🥈" :
+                        index === 2 ? "🥉" :
+                          `#${index + 1}`}
                   </span>
 
                   {/* Avatar */}
                   <div className={`w-8 h-8 rounded-full flex items-center justify-center text-xs font-bold text-white shrink-0 ${p.isUser ? "bg-gradient-to-br from-violet-500 to-fuchsia-500" : "bg-white/10"
                     }`}>
-                    {p.avatar}
+                    {AVATARS[index % AVATARS.length]}
                   </div>
 
                   <div className="flex-1 min-w-0">
-                    <p className={`font-semibold text-sm truncate ${p.isUser ? "text-violet-300" : "text-white"}`}>
-                      {p.name} {p.isUser && <span className="text-xs font-normal text-violet-400">(you)</span>}
+                    <p className="font-semibold text-sm truncate text-white">
+                      {p.name}
                     </p>
-                    <p className="text-gray-500 text-xs">Level {p.level}</p>
                   </div>
 
                   <span className="text-white font-bold text-sm shrink-0">
-                    {p.score.toLocaleString()}
+                    {p.total_score.toLocaleString()}
                   </span>
                 </div>
               ))}
