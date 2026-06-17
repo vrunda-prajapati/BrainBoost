@@ -59,6 +59,10 @@ router.post("/save-score", verifyToken, (req, res) => {
             return res.status(500).json(updateErr);
           }
 
+          console.log("Score added:", score);
+          console.log("XP added:", xpEarned);
+          console.log("User ID:", userId);
+          
           res.json({
             message: "Score Saved Successfully",
             xpEarned

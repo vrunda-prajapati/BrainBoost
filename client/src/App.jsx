@@ -6,6 +6,9 @@ import Dashboard from "./pages/Dashboard";
 import MemoryGame from "./pages/MemoryGame";
 import WordScramble from "./pages/WordScramble";
 import Crossword from "./pages/Crossword";
+import SudokuGame from "./pages/SudokuGame";
+import NumberPuzzleGame from "./pages/NumberPuzzleGame";
+import PatternMemoryGame from "./pages/PatternMemoryGame";
 
 function App() {
   return (
@@ -17,6 +20,10 @@ function App() {
         <Route path="/game/memory" element={<MemoryGame />} />
         <Route path="/game/word" element={<WordScramble />} />
         <Route path="/game/crossword" element={<Crossword/>}></Route>
+        <Route path="/game/sudoku" element={<SudokuGame />}></Route>
+        <Route path="/game/number-puzzle" element={<NumberPuzzleGame />}></Route>
+        <Route path="/game/pattern" element={<PatternMemoryGame />}></Route>
+
       </Routes>
     </BrowserRouter>
   );

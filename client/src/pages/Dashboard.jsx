@@ -45,6 +45,48 @@ const GAMES = [
     stats: "534 plays",
     difficulty: "Hard",
   },
+  {
+    id: "sudoku",
+    name: "Sudoku",
+    desc: "Fill every row, column, and 3×3 box with digits 1–9. No repeats allowed.",
+    icon: "🔢",
+    route: "/game/sudoku",
+    gradient: "from-indigo-600 to-indigo-900",
+    glow: "shadow-indigo-500/20",
+    border: "border-indigo-500/30",
+    badge: "Logic",
+    badgeColor: "bg-indigo-500/20 text-indigo-300 border-indigo-500/30",
+    stats: "0 plays",
+    difficulty: "Medium",
+  },
+  {
+    id: "number-puzzle",
+    name: "Number Puzzle",
+    desc: "Slide tiles 1–15 into order. Fewer moves and faster time wins.",
+    icon: "🔢",
+    route: "/game/number-puzzle",
+    gradient: "from-violet-600 to-indigo-900",
+    glow: "shadow-violet-500/20",
+    border: "border-violet-500/30",
+    badge: "Classic",
+    badgeColor: "bg-violet-500/20 text-violet-300 border-violet-500/30",
+    stats: "0 plays",
+    difficulty: "Medium",
+  },
+  {
+    id: "pattern",
+    name: "Pattern Memory",
+    desc: "Watch the tile sequence flash and repeat it perfectly. Each round adds one more.",
+    icon: "🎯",
+    route: "/game/pattern",
+    gradient: "from-fuchsia-600 to-fuchsia-900",
+    glow: "shadow-fuchsia-500/20",
+    border: "border-fuchsia-500/30",
+    badge: "Simon Says",
+    badgeColor: "bg-fuchsia-500/20 text-fuchsia-300 border-fuchsia-500/30",
+    stats: "0 plays",
+    difficulty: "Medium",
+  },
 ];
 
 const ACHIEVEMENTS = [
@@ -232,7 +274,7 @@ export default function Dashboard() {
         </div>
 
         {/* ── Quick Stats Row ── */}
-        <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
+        <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-5">
           {[
             {
               label: "Games Played",
@@ -272,7 +314,7 @@ export default function Dashboard() {
         <section>
           <div className="flex items-center justify-between mb-5">
             <h2 className="text-xl font-bold text-white">Play a Game</h2>
-            <span className="text-xs text-gray-500">3 games available</span>
+            <span className="text-xs text-gray-500">4 games available</span>
           </div>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-5">
             {GAMES.map((game) => (
