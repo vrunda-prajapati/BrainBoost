@@ -14,7 +14,7 @@ const GAMES = [
     border: "border-violet-500/30",
     badge: "Most Popular",
     badgeColor: "bg-violet-500/20 text-violet-300 border-violet-500/30",
-    stats: "1,240 plays",
+    gameKey: "Memory Match",   // ← used to match backend game_name
     difficulty: "Medium",
   },
   {
@@ -28,7 +28,7 @@ const GAMES = [
     border: "border-cyan-500/30",
     badge: "New",
     badgeColor: "bg-cyan-500/20 text-cyan-300 border-cyan-500/30",
-    stats: "892 plays",
+    gameKey: "Word Scramble",
     difficulty: "Easy",
   },
   {
@@ -42,7 +42,7 @@ const GAMES = [
     border: "border-fuchsia-500/30",
     badge: "Hard",
     badgeColor: "bg-fuchsia-500/20 text-fuchsia-300 border-fuchsia-500/30",
-    stats: "534 plays",
+    gameKey: "Crossword",
     difficulty: "Hard",
   },
   {
@@ -56,7 +56,7 @@ const GAMES = [
     border: "border-indigo-500/30",
     badge: "Logic",
     badgeColor: "bg-indigo-500/20 text-indigo-300 border-indigo-500/30",
-    stats: "0 plays",
+    gameKey: "Sudoku",
     difficulty: "Medium",
   },
   {
@@ -70,7 +70,7 @@ const GAMES = [
     border: "border-violet-500/30",
     badge: "Classic",
     badgeColor: "bg-violet-500/20 text-violet-300 border-violet-500/30",
-    stats: "0 plays",
+    gameKey: "Number Puzzle",
     difficulty: "Medium",
   },
   {
@@ -84,28 +84,37 @@ const GAMES = [
     border: "border-fuchsia-500/30",
     badge: "Simon Says",
     badgeColor: "bg-fuchsia-500/20 text-fuchsia-300 border-fuchsia-500/30",
-    stats: "0 plays",
+    gameKey: "Pattern Memory",
     difficulty: "Medium",
   },
 ];
-
-const ACHIEVEMENTS = [
-  { icon: "🔥", title: "7-Day Streak", desc: "Login 7 days in a row", unlocked: true },
-  { icon: "⚡", title: "Speed Demon", desc: "Complete Memory Match in under 60s", unlocked: true },
-  { icon: "🎯", title: "Sharpshooter", desc: "Score 100% on Word Scramble", unlocked: false },
-  { icon: "🏅", title: "Top 10", desc: "Reach global top 10", unlocked: false },
-];
-
-
-
 const AVATARS = ["🐉", "🦊", "🦁", "🐺", "🦅", "🐯"];
+
+function getGreetings(user, stats) {
+  const messages = [
+    <>Every round sharpens the mind — <span className="text-violet-400 font-semibold">keep going</span>.</>,
+    <>You've played <span className="text-violet-400 font-semibold">{stats.gamesPlayed || 0} games</span> so far. Nice consistency.</>,
+    <>Your brain is warming up — <span className="text-violet-400 font-semibold">one more round?</span></>,
+    <>Small daily wins add up to <span className="text-violet-400 font-semibold">big progress</span>.</>,
+    user.current_level > 1
+      ? <>You've climbed to <span className="text-violet-400 font-semibold">Level {user.current_level}</span> — solid work.</>
+      : <>Play a game to start climbing the <span className="text-violet-400 font-semibold">levels</span>.</>,
+    stats.highestScore > 0
+      ? <>Your best score so far: <span className="text-violet-400 font-semibold">{stats.highestScore.toLocaleString()}</span>. Can you beat it?</>
+      : <>Set your <span className="text-violet-400 font-semibold">first high score</span> today.</>,
+    <>Consistency beats intensity — <span className="text-violet-400 font-semibold">a few minutes daily</span> is all it takes.</>,
+    <>Ready to challenge your <span className="text-violet-400 font-semibold">memory and focus</span> today?</>,
+  ];
+  return messages;
+}
 
 export default function Dashboard() {
   const [leaderboard, setLeaderboard] = useState([]);
   const [stats, setStats] = useState({
     gamesPlayed: 0,
     highestScore: 0,
-    avgScore: 0
+    avgScore: 0,
+    globalRank: "-"
   });
   const navigate = useNavigate();
   const [user, setUser] = useState({
@@ -116,8 +125,17 @@ export default function Dashboard() {
     nextXp: 5000
   });
   const [avatarIdx] = useState(2);
+  const [currentUserId, setCurrentUserId] = useState(null);
+  const [achievements, setAchievements] = useState([]);
+  const [greetingIdx, setGreetingIdx] = useState(0);
+  const [gameCounts, setGameCounts] = useState({});
 
   useEffect(() => {
+    const stored = localStorage.getItem("user");
+    if (stored) {
+      try { setCurrentUserId(JSON.parse(stored).id); } catch { }
+    }
+
     const fetchProfile = async () => {
       try {
         const token = localStorage.getItem("token");
@@ -163,7 +181,40 @@ export default function Dashboard() {
         console.log(err);
       });
 
+    axios.get(
+      "http://localhost:3001/api/user/achievements",
+      { headers: { Authorization: token } }
+    )
+      .then((res) => {
+        setAchievements(res.data.achievements);
+      })
+      .catch((err) => {
+        console.log(err);
+      });
+
+    axios.get(
+      "http://localhost:3001/api/user/game-counts",
+      { headers: { Authorization: token } }
+    )
+      .then((res) => {
+        const counts = {};
+        res.data.forEach((g) => {
+          counts[g.game_name] = g.playCount;
+        });
+        setGameCounts(counts);
+      })
+      .catch((err) => {
+        console.log(err);
+      });
+
     fetchProfile();
+  }, []);
+
+  useEffect(() => {
+    const interval = setInterval(() => {
+      setGreetingIdx((i) => i + 1);
+    }, 6000); // rotates every 6 seconds
+    return () => clearInterval(interval);
   }, []);
 
   const handleLogout = () => {
@@ -178,6 +229,9 @@ export default function Dashboard() {
     100,
     Math.round((user.xp / nextXp) * 100)
   );
+
+  const greetings = getGreetings(user, stats);
+  const currentGreeting = greetings[greetingIdx % greetings.length];
 
   return (
     <div className="min-h-screen bg-[#0a0a0f] font-sans">
@@ -242,8 +296,12 @@ export default function Dashboard() {
             <div className="flex-1 min-w-0">
               <p className="text-gray-400 text-sm font-medium">Welcome back,</p>
               <h1 className="text-3xl font-black text-white mt-0.5">{user.name} 👋</h1>
-              <p className="text-gray-400 text-sm mt-1">Keep up the momentum — you're in the <span className="text-violet-400 font-semibold">top 15%</span> this week.</p>
-
+              <p
+                key={greetingIdx}
+                className="text-gray-400 text-sm mt-1 min-h-[20px] animate-fadeIn"
+              >
+                {currentGreeting}
+              </p>
               {/* XP bar */}
               <div className="mt-4 max-w-xs">
                 <div className="flex justify-between text-xs text-gray-400 mb-1.5">
@@ -266,8 +324,7 @@ export default function Dashboard() {
                 <p className="text-xs text-gray-500 uppercase tracking-widest mt-0.5">Total Score</p>
               </div>
               <div className="rounded-xl bg-white/[0.05] border border-white/10 px-5 py-3 text-center min-w-[100px]">
-                <p className="text-2xl font-black text-white">#5</p>
-                <p className="text-xs text-gray-500 uppercase tracking-widest mt-0.5">Global Rank</p>
+                <p className="text-2xl font-black text-white">#{stats.globalRank}</p>                <p className="text-xs text-gray-500 uppercase tracking-widest mt-0.5">Global Rank</p>
               </div>
             </div>
           </div>
@@ -314,7 +371,7 @@ export default function Dashboard() {
         <section>
           <div className="flex items-center justify-between mb-5">
             <h2 className="text-xl font-bold text-white">Play a Game</h2>
-            <span className="text-xs text-gray-500">4 games available</span>
+            <span className="text-xs text-gray-500">6 games available</span>
           </div>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-5">
             {GAMES.map((game) => (
@@ -336,7 +393,7 @@ export default function Dashboard() {
                 </div>
 
                 <div className="flex items-center justify-between text-xs text-white/50">
-                  <span>{game.stats}</span>
+                  <span>{(gameCounts[game.gameKey] || 0).toLocaleString()} plays</span>
                   <span className="px-2 py-0.5 rounded-md bg-white/10">{game.difficulty}</span>
                 </div>
 
@@ -360,35 +417,58 @@ export default function Dashboard() {
           <div className="lg:col-span-2 rounded-2xl bg-white/[0.04] border border-white/[0.08] p-6">
             <div className="flex items-center justify-between mb-5">
               <h2 className="text-lg font-bold text-white">Achievements</h2>
-              <span className="text-xs text-violet-400 font-semibold">2 / 4 Unlocked</span>
+              <span className="text-xs text-violet-400 font-semibold">
+                {achievements.filter(a => a.unlocked).length} / {achievements.length} Unlocked
+              </span>
             </div>
             <div className="space-y-3">
-              {ACHIEVEMENTS.map((a) => (
-                <div key={a.title}
-                  className={`flex items-center gap-4 rounded-xl px-4 py-3 border transition-colors ${a.unlocked
-                    ? "bg-violet-500/10 border-violet-500/25 hover:bg-violet-500/15"
-                    : "bg-white/[0.02] border-white/[0.05] opacity-50"
-                    }`}>
-                  <span className="text-2xl">{a.icon}</span>
-                  <div className="flex-1 min-w-0">
-                    <p className="text-white font-semibold text-sm">{a.title}</p>
-                    <p className="text-gray-500 text-xs truncate">{a.desc}</p>
-                  </div>
-                  {a.unlocked ? (
-                    <span className="text-emerald-400 shrink-0">
-                      <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
-                        <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
-                      </svg>
-                    </span>
-                  ) : (
-                    <span className="text-gray-600 shrink-0">
-                      <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
-                      </svg>
-                    </span>
-                  )}
+              {achievements.length === 0 ? (
+                <div className="space-y-3">
+                  {[...Array(4)].map((_, i) => (
+                    <div key={i} className="h-16 rounded-xl bg-white/[0.02] animate-pulse" />
+                  ))}
                 </div>
-              ))}
+              ) : (
+                achievements.map((a) => {
+                  const pct = Math.min(100, Math.round((a.progress / a.target) * 100));
+                  return (
+                    <div key={a.id}
+                      className={`rounded-xl px-4 py-3 border transition-colors ${a.unlocked
+                        ? "bg-violet-500/10 border-violet-500/25 hover:bg-violet-500/15"
+                        : "bg-white/[0.02] border-white/[0.05]"
+                        }`}>
+                      <div className="flex items-center gap-4">
+                        <span className={`text-2xl ${!a.unlocked && "opacity-40 grayscale"}`}>{a.icon}</span>
+                        <div className="flex-1 min-w-0">
+                          <p className={`font-semibold text-sm ${a.unlocked ? "text-white" : "text-gray-400"}`}>
+                            {a.title}
+                          </p>
+                          <p className="text-gray-500 text-xs truncate">{a.desc}</p>
+                        </div>
+                        {a.unlocked ? (
+                          <span className="text-emerald-400 shrink-0">
+                            <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
+                              <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
+                            </svg>
+                          </span>
+                        ) : (
+                          <span className="text-gray-600 text-xs shrink-0 font-medium tabular-nums">
+                            {a.progress}/{a.target}
+                          </span>
+                        )}
+                      </div>
+                      {!a.unlocked && (
+                        <div className="mt-2.5 h-1.5 bg-white/[0.06] rounded-full overflow-hidden">
+                          <div
+                            className="h-full rounded-full bg-gradient-to-r from-violet-500 to-fuchsia-500 transition-all duration-700"
+                            style={{ width: `${pct}%` }}
+                          />
+                        </div>
+                      )}
+                    </div>
+                  );
+                })
+              )}
             </div>
           </div>
 
@@ -418,17 +498,19 @@ export default function Dashboard() {
                   </span>
 
                   {/* Avatar */}
-                  <div className={`w-8 h-8 rounded-full flex items-center justify-center text-xs font-bold text-white shrink-0 ${p.isUser ? "bg-gradient-to-br from-violet-500 to-fuchsia-500" : "bg-white/10"
+                  <div className={`w-8 h-8 rounded-full flex items-center justify-center text-xs font-bold text-white shrink-0 ${p.id === currentUserId ? "bg-gradient-to-br from-violet-500 to-fuchsia-500" : "bg-white/10"
                     }`}>
                     {AVATARS[index % AVATARS.length]}
                   </div>
 
                   <div className="flex-1 min-w-0">
-                    <p className="font-semibold text-sm truncate text-white">
+                    <p className={`font-semibold text-sm truncate ${p.id === currentUserId ? "text-violet-300" : "text-white"}`}>
                       {p.name}
+                      {p.id === currentUserId && (
+                        <span className="text-xs font-normal text-violet-400 ml-1">(you)</span>
+                      )}
                     </p>
                   </div>
-
                   <span className="text-white font-bold text-sm shrink-0">
                     {p.total_score.toLocaleString()}
                   </span>
