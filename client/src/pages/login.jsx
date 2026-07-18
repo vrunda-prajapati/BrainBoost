@@ -36,6 +36,9 @@ export default function Login() {
         <div className="absolute -top-32 -left-32 w-96 h-96 rounded-full bg-violet-600/20 blur-3xl pointer-events-none" />
         <div className="absolute top-1/2 -right-20 w-72 h-72 rounded-full bg-cyan-500/15 blur-3xl pointer-events-none" />
         <div className="absolute -bottom-24 left-1/4 w-80 h-80 rounded-full bg-fuchsia-600/15 blur-3xl pointer-events-none" />
+        <div className="absolute -top-32 -left-32 w-96 h-96 rounded-full bg-violet-600/20 blur-3xl pointer-events-none" />
+        <div className="absolute top-1/2 -right-20 w-72 h-72 rounded-full bg-cyan-500/15 blur-3xl pointer-events-none" />
+        <div className="absolute -bottom-24 left-1/4 w-80 h-80 rounded-full bg-fuchsia-600/15 blur-3xl pointer-events-none" />
 
         {/* Logo */}
         <div className="relative z-10 flex items-center gap-3">
@@ -73,8 +76,8 @@ export default function Login() {
           {/* Stats row */}
           <div className="flex gap-8">
             {[
-              { value: "50K+", label: "Players" },
-              { value: "12", label: "Brain Games" },
+              { value: "10K+", label: "Players" },
+              { value: "6", label: "Brain Games" },
               { value: "4.9★", label: "Rating" },
             ].map((s) => (
               <div key={s.label}>
@@ -91,6 +94,9 @@ export default function Login() {
             { icon: "🧠", name: "Memory Match", color: "from-violet-500/20 to-violet-600/10", border: "border-violet-500/30" },
             { icon: "📝", name: "Word Scramble", color: "from-cyan-500/20 to-cyan-600/10", border: "border-cyan-500/30" },
             { icon: "🔤", name: "Crossword", color: "from-fuchsia-500/20 to-fuchsia-600/10", border: "border-fuchsia-500/30" },
+            { icon: "🔢", name: "Sudoku", color: "from-violet-500/20 to-violet-600/10", border: "border-violet-500/30" },
+            { icon: "🔢", name: "Number Puzzle", color: "from-cyan-500/20 to-cyan-600/10", border: "border-cyan-500/30" },
+            { icon: "🧠", name: "Pattern Memory Game", color: "from-fuchsia-500/20 to-fuchsia-600/10", border: "border-fuchsia-500/30" },
           ].map((g) => (
             <div key={g.name}
               className={`flex-1 rounded-xl bg-gradient-to-br ${g.color} border ${g.border} p-3 backdrop-blur-sm`}>

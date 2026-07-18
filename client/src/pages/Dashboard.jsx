@@ -109,6 +109,10 @@ function getGreetings(user, stats) {
 }
 
 export default function Dashboard() {
+  const [installPrompt, setInstallPrompt] = useState(null);
+  const [showInstallBanner, setShowInstallBanner] = useState(false);
+  const [isInstalled, setIsInstalled] = useState(false);
+  const [updateAvailable, setUpdateAvailable] = useState(false);
   const [leaderboard, setLeaderboard] = useState([]);
   const [stats, setStats] = useState({
     gamesPlayed: 0,
@@ -217,6 +221,69 @@ export default function Dashboard() {
     return () => clearInterval(interval);
   }, []);
 
+  useEffect(() => {
+    const handler = (e) => {
+      e.preventDefault();
+      setInstallPrompt(e);
+      setShowInstallBanner(true);
+    };
+    window.addEventListener("beforeinstallprompt", handler);
+    return () => window.removeEventListener("beforeinstallprompt", handler);
+  }, []);
+
+  useEffect(() => {
+    const handler = (e) => {
+      e.preventDefault();
+      setInstallPrompt(e);
+      setShowInstallBanner(true);
+    };
+
+    window.addEventListener("beforeinstallprompt", handler);
+
+    return () =>
+      window.removeEventListener("beforeinstallprompt", handler);
+  }, []);
+
+  useEffect(() => {
+    const checkInstalled = () => {
+      const installed =
+        window.matchMedia("(display-mode: standalone)").matches ||
+        window.navigator.standalone === true;
+
+      setIsInstalled(installed);
+    };
+
+    checkInstalled();
+
+    const mediaQuery = window.matchMedia("(display-mode: standalone)");
+
+    mediaQuery.addEventListener("change", checkInstalled);
+
+    return () => {
+      mediaQuery.removeEventListener("change", checkInstalled);
+    };
+  }, []);
+
+  useEffect(() => {
+    const showUpdate = () => {
+      setUpdateAvailable(true);
+    };
+
+    window.addEventListener("brainboost-update", showUpdate);
+
+    return () => {
+      window.removeEventListener("brainboost-update", showUpdate);
+    };
+  }, []);
+
+  const handleInstall = async () => {
+    if (!installPrompt) return;
+    installPrompt.prompt();
+    const { outcome } = await installPrompt.userChoice;
+    if (outcome === "accepted") setShowInstallBanner(false);
+    setInstallPrompt(null);
+  };
+
   const handleLogout = () => {
     localStorage.removeItem("token");
     localStorage.removeItem("user");
@@ -276,7 +343,53 @@ export default function Dashboard() {
       </nav>
 
       <main className="relative max-w-7xl mx-auto px-4 sm:px-6 py-8 space-y-8">
+        {updateAvailable && (
+          <div className="mb-4 flex items-center justify-between rounded-xl border border-cyan-500/30 bg-cyan-500/10 px-5 py-4">
+            <div>
+              <p className="text-white font-semibold">
+                🚀 BrainBoost has been updated
+              </p>
 
+              <p className="text-gray-400 text-sm">
+                A newer version is available.
+              </p>
+            </div>
+
+            <button
+              onClick={() => window.location.reload()}
+              className="bg-cyan-500 hover:bg-cyan-400 text-white px-4 py-2 rounded-lg font-semibold transition"
+            >
+              Update Now
+            </button>
+          </div>
+        )}
+        {showInstallBanner && !isInstalled && (
+          <div className="flex items-center justify-between gap-4 rounded-xl bg-violet-500/10 border border-violet-500/25 px-5 py-3">
+            <div className="flex items-center gap-3">
+              <span className="text-2xl">📱</span>
+              <div>
+                <p className="text-white font-semibold text-sm">Install BrainBoost</p>
+                <p className="text-gray-400 text-xs">Add to your home screen for the best experience</p>
+              </div>
+            </div>
+            <div className="flex items-center gap-2 shrink-0">
+              <button
+                onClick={handleInstall}
+                className="px-4 py-1.5 rounded-lg bg-violet-600 text-white text-xs font-bold hover:bg-violet-500 transition-all"
+              >
+                Install
+              </button>
+              <button
+                onClick={() => setShowInstallBanner(false)}
+                className="text-gray-500 hover:text-white transition-colors"
+              >
+                <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M6 18L18 6M6 6l12 12" />
+                </svg>
+              </button>
+            </div>
+          </div>
+        )}
         {/* ── Hero: User Profile ── */}
         <div className="rounded-2xl bg-gradient-to-br from-violet-900/40 via-violet-800/20 to-transparent border border-violet-500/20 p-6 sm:p-8 overflow-hidden relative">
           <div className="absolute top-0 right-0 w-64 h-64 rounded-full bg-violet-500/10 blur-3xl pointer-events-none" />
