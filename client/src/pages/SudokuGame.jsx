@@ -121,7 +121,7 @@ async function saveScoreToBackend(difficulty, finalScore, moves, seconds) {
         if (!token) return;
         const levelMap = { easy: 1, medium: 2, hard: 3 };
         await axios.post(
-            "http://localhost:3001/api/game/save-score",
+            "https://brainboost-production.up.railway.app/api/game/save-score",
             {
                 game_name: "Sudoku",
                 score: finalScore,

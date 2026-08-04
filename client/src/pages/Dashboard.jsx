@@ -145,7 +145,7 @@ export default function Dashboard() {
         const token = localStorage.getItem("token");
 
         const res = await axios.get(
-          "http://localhost:3001/api/user/profile",
+          "https://brainboost-production.up.railway.app/api/user/profile",
           {
             headers: {
               Authorization: token
@@ -162,7 +162,7 @@ export default function Dashboard() {
     const token = localStorage.getItem("token");
 
     axios.get(
-      "http://localhost:3001/api/user/stats",
+      "https://brainboost-production.up.railway.app/api/user/stats",
       {
         headers: {
           Authorization: token
@@ -177,7 +177,7 @@ export default function Dashboard() {
       });
 
     axios
-      .get("http://localhost:3001/api/user/leaderboard")
+      .get("https://brainboost-production.up.railway.app/api/user/leaderboard")
       .then((res) => {
         setLeaderboard(res.data);
       })
@@ -186,7 +186,7 @@ export default function Dashboard() {
       });
 
     axios.get(
-      "http://localhost:3001/api/user/achievements",
+      "https://brainboost-production.up.railway.app/api/user/achievements",
       { headers: { Authorization: token } }
     )
       .then((res) => {
@@ -197,7 +197,7 @@ export default function Dashboard() {
       });
 
     axios.get(
-      "http://localhost:3001/api/user/game-counts",
+      "https://brainboost-production.up.railway.app/api/user/game-counts",
       { headers: { Authorization: token } }
     )
       .then((res) => {

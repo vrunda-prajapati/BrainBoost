@@ -182,7 +182,7 @@ export default function WordScramble() {
 
   try {
     const res = await axios.post(
-      "http://localhost:3001/api/game/save-score",
+      "https://brainboost-production.up.railway.app/api/game/save-score",
       {
         game_name: "Word Scramble",
         score: computedScore,

@@ -304,7 +304,7 @@ export default function Crossword() {
     try {
       const token = localStorage.getItem("token");
       await axios.post(
-        "http://localhost:3001/api/game/save-score",
+        "https://brainboost-production.up.railway.app/api/game/save-score",
         { game_name: "Crossword", score: score, level: 1, moves_taken: filled, time_taken: seconds },
         { headers: { Authorization: token } }
       );

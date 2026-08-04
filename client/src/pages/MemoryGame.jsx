@@ -189,7 +189,7 @@ const saveScore = async () => {
     const token = localStorage.getItem("token");
 
     await axios.post(
-      "http://localhost:3001/api/game/save-score",
+      "https://brainboost-production.up.railway.app/api/game/save-score",
       {
         game_name: "Memory Match",
         score: finalScore,
