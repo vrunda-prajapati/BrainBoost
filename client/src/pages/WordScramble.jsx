@@ -1,6 +1,8 @@
 import { useState, useEffect, useCallback, useRef } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import axios from "axios";
+import api from "../services/api";
+const API = import.meta.env.VITE_API_URL;
 
 // ── Word Banks ────────────────────────────────────────────────────────────────
 const WORD_BANKS = {
@@ -181,8 +183,8 @@ export default function WordScramble() {
   console.log("TOKEN:", token);
 
   try {
-    const res = await axios.post(
-      "https://brainboost-production.up.railway.app/api/game/save-score",
+    const res = await api.post(
+      `${API}/api/game/save-score`,
       {
         game_name: "Word Scramble",
         score: computedScore,

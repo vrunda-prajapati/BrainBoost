@@ -1,6 +1,8 @@
 import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import axios from "axios";
+import api from "../services/api";
+const API = import.meta.env.VITE_API_URL;
 
 export default function Login() {
   const [form, setForm] = useState({ email: "", password: "" });
@@ -16,7 +18,7 @@ export default function Login() {
     setLoading(true);
     setError("");
     try {
-      const res = await axios.post("/api/auth/login", form);
+      const res = await api.post("/api/auth/login", form);
       console.log(res.data);
       localStorage.setItem("token", res.data.token);
       localStorage.setItem("user", JSON.stringify(res.data.user));

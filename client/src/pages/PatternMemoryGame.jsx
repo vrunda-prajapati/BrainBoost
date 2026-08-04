@@ -1,6 +1,8 @@
 import axios from "axios";
 import { useState, useEffect, useCallback, useRef } from "react";
 import { Link } from "react-router-dom";
+import api from "../services/api";
+const API = import.meta.env.VITE_API_URL;
 
 // ── CONSTANTS ─────────────────────────────────────────────────────────────────
 
@@ -268,7 +270,7 @@ export default function PatternMemoryGame() {
             const levelMap = { easy: 1, medium: 2, hard: 3 };
             const token = localStorage.getItem("token");
             if (token) {
-                axios.post("https://brainboost-production.up.railway.app/api/game/save-score",
+                api.post("/api/game/save-score",
                     { game_name: "Pattern Memory", score, level: levelMap[difficulty] || 1, moves_taken: sequence.length, time_taken: seconds },
                     { headers: { Authorization: token } }
                 ).catch(err => console.error("Save failed:", err.message));

@@ -1,6 +1,8 @@
 import axios from "axios";
 import { useState, useEffect, useCallback, useRef } from "react";
 import { Link } from "react-router-dom";
+import api from "../services/api";
+const API = import.meta.env.VITE_API_URL;
 
 
 // ── PUZZLE ENGINE ─────────────────────────────────────────────────────────────
@@ -137,8 +139,8 @@ async function saveScoreToBackend(difficulty, finalScore, moves, seconds) {
         const token = localStorage.getItem("token");
         if (!token) return;
         const levelMap = { easy: 1, medium: 2, hard: 3 };
-        await axios.post(
-            "https://brainboost-production.up.railway.app/api/game/save-score",
+        await api.post(
+            "/api/game/save-score",
             {
                 game_name: "Number Puzzle",
                 score: finalScore,

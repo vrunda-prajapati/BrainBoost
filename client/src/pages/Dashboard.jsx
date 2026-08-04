@@ -1,6 +1,8 @@
 import { useState, useEffect } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import axios from "axios";
+import api from "../services/api";
+const API = import.meta.env.VITE_API_URL;
 
 const GAMES = [
   {
@@ -145,7 +147,7 @@ export default function Dashboard() {
         const token = localStorage.getItem("token");
 
         const res = await axios.get(
-          "https://brainboost-production.up.railway.app/api/user/profile",
+          `${API}/api/user/profile`,
           {
             headers: {
               Authorization: token
@@ -161,8 +163,8 @@ export default function Dashboard() {
 
     const token = localStorage.getItem("token");
 
-    axios.get(
-      "https://brainboost-production.up.railway.app/api/user/stats",
+    api.get(
+      "/api/user/stats",
       {
         headers: {
           Authorization: token
@@ -177,7 +179,7 @@ export default function Dashboard() {
       });
 
     axios
-      .get("https://brainboost-production.up.railway.app/api/user/leaderboard")
+      .get(`${API}/api/user/leaderboard`)
       .then((res) => {
         setLeaderboard(res.data);
       })
@@ -186,7 +188,7 @@ export default function Dashboard() {
       });
 
     axios.get(
-      "https://brainboost-production.up.railway.app/api/user/achievements",
+      `${API}/api/user/achievements`,
       { headers: { Authorization: token } }
     )
       .then((res) => {
@@ -197,7 +199,7 @@ export default function Dashboard() {
       });
 
     axios.get(
-      "https://brainboost-production.up.railway.app/api/user/game-counts",
+      `${API}/api/user/game-counts`,
       { headers: { Authorization: token } }
     )
       .then((res) => {

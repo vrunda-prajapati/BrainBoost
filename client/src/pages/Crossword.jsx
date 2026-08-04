@@ -1,6 +1,8 @@
 import { useState, useEffect, useCallback, useRef } from "react";
 import { Link } from "react-router-dom";
 import axios from "axios";
+import api from "../services/api";
+const API = import.meta.env.VITE_API_URL;
 
 // ── VERIFIED PUZZLE DATA ──────────────────────────────────────────────────────
 //
@@ -303,8 +305,8 @@ export default function Crossword() {
     setSaving(true);
     try {
       const token = localStorage.getItem("token");
-      await axios.post(
-        "https://brainboost-production.up.railway.app/api/game/save-score",
+      await api.post(
+        "/api/game/save-score",
         { game_name: "Crossword", score: score, level: 1, moves_taken: filled, time_taken: seconds },
         { headers: { Authorization: token } }
       );
