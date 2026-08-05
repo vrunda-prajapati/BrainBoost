@@ -2,7 +2,7 @@ const db = require("../config/db");
 const bcrypt = require("bcryptjs");
 
 exports.register = async (req, res) => {
-    console.log(req.body);
+  console.log(req.body);
   const { name, email, password } = req.body;
 
   try {
@@ -11,21 +11,28 @@ exports.register = async (req, res) => {
     const sql =
       "INSERT INTO users(name,email,password) VALUES(?,?,?)";
 
-    db.query(
-      sql,
-      [name, email, hashedPassword],
-      (err, result) => {
-        if (err) {
-          return res.status(500).json(err);
-        }
+    db.query(sql, [name, email, hashedPassword], (err, result) => {
+      console.log("DB CALLBACK REACHED");
 
-        res.status(201).json({
-          message: "User Registered Successfully",
+      if (err) {
+        console.error("MYSQL ERROR:", err);
+        return res.status(500).json({
+          message: err.message,
         });
       }
-    );
+
+      console.log("USER INSERTED:", result);
+
+      res.status(201).json({
+        message: "User Registered Successfully",
+      });
+    });
   } catch (error) {
-    res.status(500).json(error);
+    console.error("REGISTER ERROR:", error);
+
+    res.status(500).json({
+      message: error.message,
+    });
   }
 };
 
@@ -38,9 +45,9 @@ exports.login = (req, res) => {
 
   db.query(sql, [email], async (err, results) => {
     if (err) {
-  console.log("MYSQL ERROR:", err);
-  return res.status(500).json(err);
-}
+      console.log("MYSQL ERROR:", err);
+      return res.status(500).json(err);
+    }
 
     if (results.length === 0) {
       return res.status(404).json({
