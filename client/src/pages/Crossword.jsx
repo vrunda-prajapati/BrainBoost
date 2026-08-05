@@ -1,6 +1,5 @@
 import { useState, useEffect, useCallback, useRef } from "react";
 import { Link } from "react-router-dom";
-import axios from "axios";
 import api from "../services/api";
 const API = import.meta.env.VITE_API_URL;
 

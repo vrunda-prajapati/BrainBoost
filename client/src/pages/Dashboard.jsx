@@ -1,6 +1,5 @@
 import { useState, useEffect } from "react";
 import { Link, useNavigate } from "react-router-dom";
-import axios from "axios";
 import api from "../services/api";
 const API = import.meta.env.VITE_API_URL;
 
@@ -146,14 +145,7 @@ export default function Dashboard() {
       try {
         const token = localStorage.getItem("token");
 
-        const res = await axios.get(
-          `${API}/api/user/profile`,
-          {
-            headers: {
-              Authorization: token
-            }
-          }
-        );
+        const res = await api.get("/api/user/profile")
 
         setUser(res.data);
       } catch (error) {
@@ -178,8 +170,7 @@ export default function Dashboard() {
         console.log(err);
       });
 
-    axios
-      .get(`${API}/api/user/leaderboard`)
+    api.get("/api/user/leaderboard")
       .then((res) => {
         setLeaderboard(res.data);
       })
@@ -187,10 +178,8 @@ export default function Dashboard() {
         console.log(err);
       });
 
-    axios.get(
-      `${API}/api/user/achievements`,
-      { headers: { Authorization: token } }
-    )
+   api.get("/api/user/achievements")
+
       .then((res) => {
         setAchievements(res.data.achievements);
       })
@@ -198,10 +187,7 @@ export default function Dashboard() {
         console.log(err);
       });
 
-    axios.get(
-      `${API}/api/user/game-counts`,
-      { headers: { Authorization: token } }
-    )
+    api.get("/api/user/game-counts")
       .then((res) => {
         const counts = {};
         res.data.forEach((g) => {

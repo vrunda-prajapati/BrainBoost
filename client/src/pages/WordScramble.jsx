@@ -1,6 +1,5 @@
 import { useState, useEffect, useCallback, useRef } from "react";
 import { Link, useNavigate } from "react-router-dom";
-import axios from "axios";
 import api from "../services/api";
 const API = import.meta.env.VITE_API_URL;
 
@@ -184,7 +183,7 @@ export default function WordScramble() {
 
   try {
     const res = await api.post(
-      `${API}/api/game/save-score`,
+      "/api/game/save-score",
       {
         game_name: "Word Scramble",
         score: computedScore,
