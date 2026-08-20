@@ -8,23 +8,13 @@ createRoot(document.getElementById('root')).render(
     <App />
   </StrictMode>,
 )
+
+// Register Service Worker
 if ("serviceWorker" in navigator) {
-  window.addEventListener("load", async () => {
-    const registration = await navigator.serviceWorker.register("/sw.js");
-
-    console.log("✅ Service Worker registered:", registration.scope);
-
-    registration.addEventListener("updatefound", () => {
-      const newWorker = registration.installing;
-
-      newWorker.addEventListener("statechange", () => {
-        if (
-          newWorker.state === "installed" &&
-          navigator.serviceWorker.controller
-        ) {
-          window.dispatchEvent(new Event("brainboost-update"));
-        }
-      });
-    });
+  window.addEventListener("load", () => {
+    navigator.serviceWorker
+      .register("/sw.js")
+      .then((reg) => console.log("✅ SW registered:", reg.scope))
+      .catch((err) => console.log("❌ SW failed:", err));
   });
 }

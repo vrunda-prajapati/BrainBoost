@@ -1,24 +1,12 @@
 import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import api from "../services/api";
-const API = import.meta.env.VITE_API_URL;
 
 export default function Login() {
   const [form, setForm] = useState({ email: "", password: "" });
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
   const navigate = useNavigate();
-
-  const login = async (req, res) => {
-
-    console.log("LOGIN DATA:", req.body);
-
-    const { email, password } = req.body;
-
-    console.log("Email:", email);
-    console.log("Password:", password);
-
-};
 
   const handleChange = (e) =>
     setForm({ ...form, [e.target.name]: e.target.value });

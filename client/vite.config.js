@@ -12,7 +12,7 @@ export default defineConfig({
   server: {
     proxy: {
       "/api": {
-        target: "https://brainboost-production.up.railway.app",
+        target: "http://localhost:3001",  // ← local only
         changeOrigin: true,
       },
     },
