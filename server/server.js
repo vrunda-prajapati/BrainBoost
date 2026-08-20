@@ -10,7 +10,6 @@ const db = require("./config/db");
 
 const app = express();
 
-// ── CORS ──────────────────────────────────────────────────────────────────────
 app.use(cors({
   origin: [
     "http://localhost:5173",
@@ -23,25 +22,21 @@ app.use(cors({
   credentials: true,
 }));
 
-app.options("/(.*)", cors());    // ← FIXED: was "*", now "/(.*)"
 app.use(express.json());
 
-// ── Health check ──────────────────────────────────────────────────────────────
 app.get("/api/health", (req, res) => {
-  res.json({ status: "ok", port: process.env.PORT });
+  res.json({ status: "ok" });
 });
 
 app.get("/", (req, res) => {
   res.json({ message: "BrainBoost API Running" });
 });
 
-// ── Routes ────────────────────────────────────────────────────────────────────
 app.use("/api/auth", authRoutes);
 app.use("/api/user", userRoutes);
 app.use("/api/game", gameRoutes);
 
-// ── Start ─────────────────────────────────────────────────────────────────────
 const PORT = process.env.PORT || 3001;
 app.listen(PORT, "0.0.0.0", () => {
-  console.log(`✅ Server running on port ${PORT}`);
+  console.log(`Server running on port ${PORT}`);
 });
