@@ -23,10 +23,10 @@ app.use(cors({
   credentials: true,
 }));
 
-app.options("*", cors());
+app.options("/(.*)", cors());    // ← FIXED: was "*", now "/(.*)"
 app.use(express.json());
 
-// ── Health check ───────────────────────────────────────────────────────────────
+// ── Health check ──────────────────────────────────────────────────────────────
 app.get("/api/health", (req, res) => {
   res.json({ status: "ok", port: process.env.PORT });
 });
@@ -40,9 +40,8 @@ app.use("/api/auth", authRoutes);
 app.use("/api/user", userRoutes);
 app.use("/api/game", gameRoutes);
 
-// ── Start server ──────────────────────────────────────────────────────────────
+// ── Start ─────────────────────────────────────────────────────────────────────
 const PORT = process.env.PORT || 3001;
-
 app.listen(PORT, "0.0.0.0", () => {
   console.log(`✅ Server running on port ${PORT}`);
 });
